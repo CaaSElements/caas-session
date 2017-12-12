@@ -1,0 +1,73 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../iron-signals/iron-signals.html">
+<!--
+`caas-session`
+Caas Session Element
+
+@demo demo/index.html
+-->
+
+<dom-module id="caas-session">
+  <template>
+
+    <iron-signals
+      on-iron-signal-caas-access-token="_setAccessToken"
+      on-iron-signal-request-caas-access-token="_handleRequestAccessToken"
+    ></iron-signals>
+
+    <app-localstorage-document
+      key="caas-session-data"
+      data="{{sessionData}}"
+     ></app-localstorage-document>
+   </template>
+
+  <script>
+    Polymer({
+        is: 'caas-session',
+        properties: {
+
+          sessionData: {
+            type: Object,
+            value: {}
+          },
+
+          accessToken: {
+            type: String,              
+            computed: '_computeAccessToken(sessionData.accessToken)',
+            observer: '_broadcastAccessToken'
+          },
+
+          tokenData: {
+            type: Object,
+            computed: '_parseJWT(accessToken)'
+          },
+
+        },
+
+        _computeAccessToken(sessionAccessToken) {
+          return sessionAccessToken;
+        },
+
+        _parseJWT: function(accessToken) {
+          if(!accessToken) return;
+          var base64Url = accessToken.split('.')[1];
+          var base64 = base64Url.replace('-', '+').replace('_', '/');
+          return JSON.parse(window.atob(base64));
+        },
+
+        _setAccessToken: function(evt, detail) {
+          this.set('sessionData.accessToken', detail.accessToken || null);
+        },
+
+        _handleRequestAccessToken: function () {
+          this.fire('iron-signal', {name: 'caas-access-token', data: { accessToken: this.accessToken }});
+        },
+
+        _broadcastAccessToken: function (accessToken) {
+          this.fire('iron-signal', {name: 'caas-access-token', data: { accessToken: accessToken || null }});
+        }
+
+    });
+  </script>
+</dom-module>
