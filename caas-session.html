@@ -87,8 +87,15 @@ Caas Session Element
 
         _broadcastAccessToken: function (accessToken) {
           this.fire('iron-signal', {name: 'caas-access-token', data: { accessToken: accessToken || null }});
+        },
+        _resetExpirationTimeOut: function(tokenExpirationTime) {
+            window.clearTimeout(this._expirationTimer);
+            var currentTime = Math.round(Date.now() / 1000);
+            var timeLeft = (tokenExpirationTime - currentTime);
+            window.setTimeout((function() {
+              this.set('_sessionData.accessToken', null);
+            }).bind(this), timeLeft);
         }
-
     });
   </script>
 </dom-module>
