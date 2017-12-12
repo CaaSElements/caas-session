@@ -39,7 +39,7 @@ Caas Session Element
           * Exposes the JSON Web token
           */
           accessToken: {
-            type: String,              
+            type: String,
             computed: '_computeAccessToken(_sessionData.accessToken)',
             notify: true,
             observer: '_broadcastAccessToken'
@@ -59,8 +59,13 @@ Caas Session Element
             value: {}
           },
 
+          _expirationTimer: {
+            type: Object
+          }
         },
-
+        observers: [
+            '_resetExpirationTimeOut(tokenData.exp)'
+        ],
         _computeAccessToken(sessionAccessToken) {
           return sessionAccessToken;
         },
