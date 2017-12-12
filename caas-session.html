@@ -27,11 +27,17 @@ Caas Session Element
         is: 'caas-session',
         properties: {
 
+          /**
+          * The name of persistent localstorage key
+          */
           storageKey: {
             type: String,
             value: 'caas-session-data'
           },
 
+          /**
+          * Exposes the JSON Web token
+          */
           accessToken: {
             type: String,              
             computed: '_computeAccessToken(_sessionData.accessToken)',
@@ -39,6 +45,9 @@ Caas Session Element
             observer: '_broadcastAccessToken'
           },
 
+          /**
+          * Exposes the raw JSON web token data
+          */
           tokenData: {
             type: Object,
             computed: '_parseJWT(accessToken)',
