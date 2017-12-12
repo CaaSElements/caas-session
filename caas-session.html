@@ -17,8 +17,8 @@ Caas Session Element
     ></iron-signals>
 
     <app-localstorage-document
-      key="caas-session-data"
-      data="{{sessionData}}"
+      key="{{storageKey}}"
+      data="{{_sessionData}}"
      ></app-localstorage-document>
    </template>
 
@@ -27,20 +27,27 @@ Caas Session Element
         is: 'caas-session',
         properties: {
 
-          sessionData: {
-            type: Object,
-            value: {}
+          storageKey: {
+            type: String,
+            value: 'caas-session-data'
           },
 
           accessToken: {
             type: String,              
-            computed: '_computeAccessToken(sessionData.accessToken)',
+            computed: '_computeAccessToken(_sessionData.accessToken)',
+            notify: true,
             observer: '_broadcastAccessToken'
           },
 
           tokenData: {
             type: Object,
-            computed: '_parseJWT(accessToken)'
+            computed: '_parseJWT(accessToken)',
+            notify: true,
+          },
+
+          _sessionData: {
+            type: Object,
+            value: {}
           },
 
         },
@@ -57,7 +64,7 @@ Caas Session Element
         },
 
         _setAccessToken: function(evt, detail) {
-          this.set('sessionData.accessToken', detail.accessToken || null);
+          this.set('_sessionData.accessToken', detail.accessToken || null);
         },
 
         _handleRequestAccessToken: function () {
