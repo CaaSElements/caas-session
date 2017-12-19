@@ -62,6 +62,11 @@ Caas Session Element
         observers: [
             '_resetExpirationTimeOut(tokenData.exp)'
         ],
+
+        destroy: function() {
+          this.set('_sessionData.accessToken', null);
+        },
+
         _computeAccessToken(sessionAccessToken) {
           return sessionAccessToken;
         },
@@ -89,7 +94,7 @@ Caas Session Element
             var currentTime = Math.round(Date.now() / 1000) + 3608;
             var timeLeft = (tokenExpirationTime - currentTime) * 1000;
             window.setTimeout((function() {
-              this.set('_sessionData.accessToken', null);
+              this.destroy();
             }).bind(this), timeLeft);
         }
     });
