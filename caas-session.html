@@ -22,81 +22,137 @@ Caas Session Element
      ></app-localstorage-document>
    </template>
 
-  <script>
-    Polymer({
-        is: 'caas-session',
-        properties: {
+   <script>
+		Polymer({
+			is: 'caas-session',
+			properties: {
 
-          /**
-          * The name of persistent localstorage key
-          */
-          storageKey: {
-            type: String,
-            value: 'caas-session-data'
-          },
+				/**
+				* The name of persistent localstorage key
+				*/
+				storageKey: {
+					type: String,
+					value: 'caas-session-data'
+				},
 
-          /**
-          * Exposes the JSON Web token
-          */
-          accessToken: {
-            type: String,
-            computed: '_computeAccessToken(_sessionData.accessToken)',
-            notify: true,
-            observer: '_broadcastAccessToken'
-          },
+				/**
+				* Exposes the JSON Web token
+				*/
+				accessToken: {
+					type: String,
+					computed: '_computeAccessToken(_sessionData.accessToken)',
+					notify: true,
+				},
 
-          /**
-          * Exposes the raw JSON web token data
-          */
-          tokenData: {
-            type: Object,
-            computed: '_parseJWT(accessToken)',
-            notify: true,
-          },
+				/**
+				* Exposes the raw JSON web token data
+				*/
+				tokenData: {
+					type: Object,
+					computed: '_parseJWT(accessToken)',
+					notify: true,
+				},
 
-          _sessionData: {
-            type: Object,
-            value: {}
-          }
-        },
-        observers: [
-            '_resetExpirationTimeOut(tokenData.exp)'
-        ],
+				assignedRoles: {
+					type: Array,
+					value: null,
+					notify: true,
+					computed: '_computeAssignedRoles(_sessionData.assignedRoles)'
+				},
 
-        destroy: function() {
-          this.set('_sessionData.accessToken', null);
-        },
+				roleDescriptions: {
+					type: Array,
+					value: null,
+					notify: true,
+					computed: '_computeRoleDescriptions(_sessionData.roleDescriptions)'
+				},
+				entrepreneur: {
+					type: Boolean,
+					notify: true,
+					computed: 'isEntrepreneur(assignedRoles)',
+				},
+				entrepreneurId: {
+					type: Number,
+					value: null,
+					notify: true,
+					computed: 'getEntrepreneurId(assignedRoles)'
+				},
+				_sessionData: {
+					type: Object,
+					value: {}
+				}
+			},
+			observers: [
+				'_resetExpirationTimeOut(tokenData.exp)',
+				'_broadcastAccessToken(accessToken, assignedRoles, roleDescriptions)'
+			],
 
-        _computeAccessToken(sessionAccessToken) {
-          return sessionAccessToken;
-        },
+			destroy: function () {
+				this.set('_sessionData.accessToken', null);
+				this.set('_sessionData.assignedRoles', null);
+				this.set('_sessionData.roleDescriptions', null);
+			},
 
-        _parseJWT: function(accessToken) {
-          if(!accessToken) return;
-          var base64Url = accessToken.split('.')[1];
-          var base64 = base64Url.replace('-', '+').replace('_', '/');
-          return JSON.parse(window.atob(base64));
-        },
+			_hasRole: function (assignedRoles, roleId) {
+				for (var index = 0; index < assignedRoles.length; index++) {
+					if (assignedRoles[index].roleId == roleId) { return true; }
+				}
+				return false;
+			},
 
-        _setAccessToken: function(evt, detail) {
-          this.set('_sessionData.accessToken', detail.accessToken || null);
-        },
+			isEntrepreneur(assignedRoles) {
+				if (!assignedRoles) return false;
+				return this._hasRole(assignedRoles, 2);
+			},
 
-        _handleRequestAccessToken: function () {
-          this.fire('iron-signal', {name: 'caas-access-token', data: { accessToken: this.accessToken }});
-        },
+			getEntrepreneurId(assignedRoles) {
+				if (!assignedRoles) return false;
+				for (var index = 0; index < assignedRoles.length; index++) {
+					if (assignedRoles[index].roleId == 2) return assignedRoles[index].assignedRoleId;
+				}
+				return null;
+			},
 
-        _broadcastAccessToken: function (accessToken) {
-          this.fire('iron-signal', {name: 'caas-access-token', data: { accessToken: accessToken || null }});
-        },
+			_computeAccessToken(sessionAccessToken) {
+				return sessionAccessToken;
+			},
 
-        _resetExpirationTimeOut: function(tokenExpirationTime) {
-            var currentTime = Math.round(Date.now() / 1000) + 3608;
-            var timeLeft = (tokenExpirationTime - currentTime) * 1000;
-            window.setTimeout((function() {
-              this.destroy();
-            }).bind(this), timeLeft);
-        }
-    });
-  </script>
+			_computeRoleDescriptions(roleDescriptions) {
+				return roleDescriptions;
+			},
+
+			_computeAssignedRoles(assignedRoles) {
+				return assignedRoles;
+			},
+
+			_parseJWT: function (accessToken) {
+				if (!accessToken) return;
+				var base64Url = accessToken.split('.')[1];
+				var base64 = base64Url.replace('-', '+').replace('_', '/');
+				return JSON.parse(window.atob(base64));
+			},
+
+			_setAccessToken: function (evt, detail) {
+				this.set('_sessionData.accessToken', detail.accessToken || null);
+				this.set('_sessionData.assignedRoles', detail.assignedRoles);
+				this.set('_sessionData.roleDescriptions', detail.roleDescriptions);
+			},
+
+			_handleRequestAccessToken: function () {
+				this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: this.accessToken, assignedRoles: this.assignedRoles, roleDescriptions: this.roleDescriptions } });
+			},
+
+			_broadcastAccessToken: function (accessToken, assignedRoles, roleDescriptions) {
+				this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: accessToken, assignedRoles: assignedRoles, roleDescriptions: roleDescriptions } });
+			},
+
+			_resetExpirationTimeOut: function (tokenExpirationTime) {
+				var currentTime = Math.round(Date.now() / 1000) + 3608;
+				var timeLeft = (tokenExpirationTime - currentTime) * 1000;
+				window.setTimeout((function () {
+					this.destroy();
+				}).bind(this), timeLeft);
+			}
+		});
+	</script>
 </dom-module>
