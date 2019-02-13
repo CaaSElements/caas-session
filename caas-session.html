@@ -77,6 +77,17 @@ Caas Session Element
 					notify: true,
 					computed: 'getEntrepreneurId(assignedRoles)'
 				},
+				investor: {
+					type: Boolean,
+					value: false,
+					notify: true,
+					computed: 'isInvestor(assignedRoles)'
+				},
+				investorId: {
+					type: Number,
+					notify: true,
+					computed: 'getInvestorId(assignedRoles)'
+				},
 				_sessionData: {
 					type: Object,
 					value: {}
@@ -113,6 +124,19 @@ Caas Session Element
 				return null;
 			},
 
+			isInvestor(assignedRoles) {
+				if (!assignedRoles) return false;
+				return this._hasRole(assignedRoles, 1);
+			},
+
+			getInvestorId(assignedRoles) {
+				if (!assignedRoles) return false;
+				for (var index = 0; index < assignedRoles.length; index++) {
+					if (assignedRoles[index].roleId == 1) return assignedRoles[index].assignedRoleId;
+				}
+				return null;
+			},
+
 			_computeAccessToken(sessionAccessToken) {
 				return sessionAccessToken;
 			},
@@ -144,7 +168,7 @@ Caas Session Element
 
 			_broadcastAccessToken: function (accessToken, assignedRoles, roleDescriptions) {
 				var caasSessionData = JSON.parse(window.localStorage['caas-session-data']);
-				if (caasSessionData.accessToken && caasSessionData.assignedRoles && caasSessionData.roleDescriptions != null) {
+				if (caasSessionData.accessToken != null && caasSessionData.assignedRoles != null && caasSessionData.roleDescriptions != null) {
 					return this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: accessToken, assignedRoles: assignedRoles, roleDescriptions: roleDescriptions } });
 				}
 			},
