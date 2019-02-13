@@ -77,6 +77,17 @@ Caas Session Element
 					notify: true,
 					computed: 'getEntrepreneurId(assignedRoles)'
 				},
+				investor: {
+					type: Boolean,
+					value: false,
+					notify: true,
+					computed: 'isInvestor(assignedRoles)'
+				},
+				investorId: {
+					type: Number,
+					notify: true,
+					computed: 'getInvestorId(assignedRoles)'
+				},
 				_sessionData: {
 					type: Object,
 					value: {}
