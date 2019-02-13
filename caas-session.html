@@ -124,6 +124,19 @@ Caas Session Element
 				return null;
 			},
 
+			isInvestor(assignedRoles) {
+				if (!assignedRoles) return false;
+				return this._hasRole(assignedRoles, 1);
+			},
+
+			getInvestorId(assignedRoles) {
+				if (!assignedRoles) return false;
+				for (var index = 0; index < assignedRoles.length; index++) {
+					if (assignedRoles[index].roleId == 1) return assignedRoles[index].assignedRoleId;
+				}
+				return null;
+			},
+
 			_computeAccessToken(sessionAccessToken) {
 				return sessionAccessToken;
 			},
