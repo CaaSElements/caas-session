@@ -168,7 +168,7 @@ Caas Session Element
 
 			_broadcastAccessToken: function (accessToken, assignedRoles, roleDescriptions) {
 				var caasSessionData = JSON.parse(window.localStorage['caas-session-data']);
-				if (caasSessionData.accessToken && caasSessionData.assignedRoles && caasSessionData.roleDescriptions != null) {
+				if (caasSessionData.accessToken != null && caasSessionData.assignedRoles != null && caasSessionData.roleDescriptions != null) {
 					return this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: accessToken, assignedRoles: assignedRoles, roleDescriptions: roleDescriptions } });
 				}
 			},
