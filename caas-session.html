@@ -157,19 +157,33 @@ Caas Session Element
 			},
 
 			_setAccessToken: function (evt, detail) {
-				this.set('_sessionData.accessToken', detail.accessToken || null);
+				this.set('_sessionData.accessToken', detail.accessToken);
 				this.set('_sessionData.assignedRoles', detail.assignedRoles);
 				this.set('_sessionData.roleDescriptions', detail.roleDescriptions);
 			},
 
 			_handleRequestAccessToken: function () {
-				this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: this.accessToken, assignedRoles: this.assignedRoles, roleDescriptions: this.roleDescriptions } });
+				this.fire('iron-signal', {
+					name: 'caas-access-token',
+					data: {
+						accessToken: this.accessToken,
+						assignedRoles: this.assignedRoles,
+						roleDescriptions: this.roleDescriptions
+					}
+				});
 			},
 
 			_broadcastAccessToken: function (accessToken, assignedRoles, roleDescriptions) {
 				var caasSessionData = JSON.parse(window.localStorage['caas-session-data']);
 				if (caasSessionData.accessToken != null && caasSessionData.assignedRoles != null && caasSessionData.roleDescriptions != null) {
-					return this.fire('iron-signal', { name: 'caas-access-token', data: { accessToken: accessToken, assignedRoles: assignedRoles, roleDescriptions: roleDescriptions } });
+					return this.fire('iron-signal', {
+						name: 'caas-access-token',
+						data: {
+							accessToken: accessToken,
+							assignedRoles: assignedRoles,
+							roleDescriptions: roleDescriptions
+						}
+					});
 				}
 			},
 
